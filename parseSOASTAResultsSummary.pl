@@ -20,6 +20,7 @@ use lib './SOASTA/libwww-perl-master/lib/LWP'; #When launching on CloudBees, thi
 use lib './SOASTA/libwww-perl-master/lib/'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './SOASTA/libwww-perl/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './SOASTA/http-message-master/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib './SOASTA/HTTP-Cookies-6.01/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use LWP::UserAgent;
 use HTTP::Request;
 local %shouldPlot;
