@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="cloudtest-example" default="play-tests">
+  <description>Demonstrates incorporating SOASTA CloudTest into an automated build.</description>
+
+  <!-- Change these property values to the URL of your CloudTest server,
+       your CloudTest user name, and your CloudTest password. -->  
+  <property name="cloudtest.url" value="http://127.0.0.1/concerto" />
+  <property name="cloudtest.username" value="CloudTest Lite" />
+  <property name="cloudtest.password" value="***" />
+  
+  <!-- Apache Ant integration requires the "SCommand" utility.
+       See http://cloudlink.soasta.com/t5/Knowledge-Base/How-do-I-start-a-Test-Composition-playing-from-the-Operating/ba-p/484 for installation instructions.
+       
+       Once it's installed, change this property value to the SCommand installation directory.
+       
+       Alternatively, you can check the SCommand binaries into source control, and use a relative
+       path in the property value. -->
+  <property name="scommand.home" location="${user.home}/Downloads/scommand" />
+
+  <path id="scommand.classpath">
+    <fileset dir="${scommand.home}/lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+  
+  <!-- Optionally change this to the directory where CloudTest result XML files should be stored.
+       Usually the default is fine. -->
+  <property name="cloudtest.out" location="cloudtestresults" />
+  
+  <taskdef name="play" classname="com.soasta.tools.scommand.anttasks.PlayTask" classpathref="scommand.classpath" />
+  
+  <target name="play-tests" description="Plays the SOASTA CloudTest test compositions.">
+    <mkdir dir="${cloudtest.out}" />
+
+    <!-- First example: playing a Composition.
+    	 The only thing you need to change is the "name" attribute value. -->
+    <play
+      type="composition"
+      name="/My tests/Composition 1"
+      url="${cloudtest.url}"
+      username="${cloudtest.username}"
+      password="${cloudtest.password}"
+      waitforcompletion="true"
+      format="junitxml"
+      dir="${cloudtest.out}"
+      failureproperty="cloudtest.failure"
+      errorproperty="cloudtest.failure" />
+
+    <!-- Second example: playing a Playlist.
+    	 The only thing you need to change is the "name" attribute value.
+    	 
+    	 The only difference between this example and the previous one
+    	 is that the "type" attribute is set to "playlist". -->
+    <play
+      type="playlist"
+      name="/My tests/Playlist 1"
+      url="${cloudtest.url}"
+      username="${cloudtest.username}"
+      password="${cloudtest.password}"
+      waitforcompletion="true"
+      format="junitxml"
+      dir="${cloudtest.out}"
+      failureproperty="cloudtest.failure"
+      errorproperty="cloudtest.failure" />
+
+    <!-- This step is optional.  In particular, if you are using a build tool (e.g. Hudson or Jenkins)
+         with its own JUnit reporting, you don't need this. -->
+    <!-- Produces an HTML report of the test results in the sub-directory "cloudtestreports/html". -->
+    <mkdir dir="cloudtestreports" />
+    <junitreport todir="cloudtestreports">
+       <fileset dir="${cloudtest.out}">
+         <include name="**/*.xml"/>
+       </fileset>
+       <report format="frames" todir="cloudtestreports/html"/>
+    </junitreport>
+
+    <!-- This step is optional.  In particular, if you are using a build tool (e.g. Hudson or Jenkins)
+         with its own JUnit reporting, you don't need this. -->
+    <!-- Causes the build to fail if any Composition(s) or Playlist(s) failed.-->
+    <fail if="cloudtest.failure" message="One or more CloudTest tests failed." />
+  </target>
+</project>
