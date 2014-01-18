@@ -22,6 +22,9 @@ use lib './libwww-perl/lib/LWP'; #When launching on CloudBees, this will tell it
 use lib './http-message-master/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './HTTP-Cookies-6.01/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib 'HTTP-Cookies-6.01/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib './SOASTA/HTTP-Cookies-6.01/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib 'SOASTA/HTTP-Cookies-6.01/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib 'HTTP-Cookies-6.01/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use LWP::UserAgent;
 use HTTP::Request;
 local %shouldPlot;
