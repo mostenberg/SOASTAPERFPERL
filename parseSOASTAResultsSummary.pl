@@ -52,7 +52,6 @@ if ($length >=1)
 			$SLA{$name}=$threshold;
 			printf ("     %-6s %-25s %3.3f \n","Avg",$name,$threshold);
 			$shouldPlot{$name}="True";
-			print ("Should plot for $name is $shouldPlot{$name}\n");
 		}
 		if ($argument=~/:90th:/) 
 		{
@@ -83,23 +82,23 @@ if ($length >=1)
 		if ($argument=~/username/) 
 		{
 			(my $temp, $username)=split("=",$argument);
-			print ("Username is $username\n");
+			#print ("Username is $username\n");
 		}
 		if ($argument=~/password/) 
 		{
 			(my $temp, $password)=split("=",$argument);
-			print ("Password is $password\n");
+			#print ("Password is $password\n");
 		}
 		if ($argument=~/url=/) 
 		{
 			(my $temp,$soastaUrl)=split("=",$argument);
-			print ("Url is $soastaUrl\n");
+			#print ("Url is $soastaUrl\n");
 		}
 
 		if ($argument=~/compname=/) 
 		{
 			(my $temp,$compName)=split("=",$argument);
-			print ("CompName is $compName\n");
+			#print ("CompName is $compName\n");
 		}
 	}
 }
@@ -115,14 +114,14 @@ else
 	);
 }
 
-#STEP 1.5: Run the load test composition
+#STEP 2: Run the loadtest composition
 $runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=$username password=$password url=$soastaUrl wait=yes format=junitxml file=1-SOASTA_RESULTS_ID.xml";
 
-print "Run comp string is $runCompString";
+print "\n*** Step 2: Playing the composition by passing the following arguments to SCOMMAND:\n\t$runCompString\n";
 system($runCompString);
 
-#Step 2: Get the results ID out of the file 1-SOASTA_RESULTS_ID.xml . We will pass this into comp
-print ("*** Step 2: Parse file 1-SOASTA_RESULTS_ID.xml to get performance ResultsID \n");
+#Step 3: Get the results ID out of the file 1-SOASTA_RESULTS_ID.xml . We will pass this into comp
+print ("\n*** Step 3: Parse file 1-SOASTA_RESULTS_ID.xml to get performance ResultsID \n");
 open FILE, "1-SOASTA_RESULTS_ID.xml" or die "Couldn't open file 1-SOASTA_RESULTS_ID.xml";
 $results=<FILE>;
 #print ("results are $results\n");
@@ -131,9 +130,9 @@ $resultID=$1;
 print ("\tCaptured results id from file.  ResultsID was $resultID\n");
 close FILE;
 
-#Step 2: Query server to get results so that we can get the performance results from that results ID into a file:
-print ("*** Step 3: Query the server to get the results details for resultsID=$resultID\n");
-print ("\tWrite details to file 2_SOASTA_RESULTS_DETAILS.xml\n");
+#STEP 4: Get results details
+print ("\n*** Step 4: Query the CloudTest server to get the results details for resultID=$resultID\n");
+#print ("\tWrite details to file 2_SOASTA_RESULTS_DETAILS.xml\n");
 
 use LWP::UserAgent;
 use HTTP::Request;
@@ -148,9 +147,9 @@ $browser->cookie_jar({});  #Enable Cookies
 #uncomment the below to record calls in CloudTest
 # $browser->proxy(['http', 'ftp'], 'http://localhost:4440/');
 
-print ("Soasta URL is $soastaUrl\n");
+#print ("Soasta URL is $soastaUrl\n");
 my $url = "$soastaUrl".'/dwr/call/plaincall/__System.generateId.dwr';
-print ("Url is $url\n");
+#print ("Url is $url\n");
  my @ns_headers = (
    'User-Agent' => 'Mozilla/4.76 [en] (Win98; U)',
    'Accept' => 'image/gif, image/x-xbitmap, image/jpeg, 
@@ -179,17 +178,17 @@ print ("Url is $url\n");
  
  $myData=$response1->content;
  
-print "Response 1 is $myData \n";
+#print "Response 1 is $myData \n";
 $myData=~/.handleCallback\(\"\d\",\"\d\",\"(.*?)\"\)/;
 
 $SystemGeneratedId=$1;
-print "SystemGeneratedId= $SystemGeneratedId \n";
+#print "SystemGeneratedId= $SystemGeneratedId \n";
 #r.handleCallback("0","0","WEgC9ZM59FEvoGotA7PpjWbb8ek");
 system (pwd);  #For debugging, find what directory we're in...
 #Send Request #2
 #goto=&userName=mostenbergci&password=soasta
 my $url2 = "$soastaUrl".'/Login';
-print ("Url2 is $url2 and $password is $password\n");
+#print ("Url2 is $url2 and $password is $password\n");
    $response2 = $browser->post( $url2,
    [
 		'goto'=>'',
@@ -203,12 +202,12 @@ print ("Url2 is $url2 and $password is $password\n");
  );
 
 $myData2=$response2->content ;
-print ("Response 2 is $myData2\n");
+#print ("Response 2 is $myData2\n");
 
-print ("Result id is $resultId\n");
+#print ("Result id is $resultId\n");
 #Send Request #3
 my $url3 = "$soastaUrl".'/dwr/call/plaincall/CommonPollerProxy.doPoll.dwr';
-print ("Url 3 is $url3\n");
+#print ("Url 3 is $url3\n");
 
    $response3 = $browser->post( $url3,
    
@@ -259,11 +258,11 @@ sleep 5;
 #	'scriptSessionId'=> "$systemGeneratedId\/VOovRdk-\$sUkFFRd9"	
 
 $myData3=$response3->content ;
-print ("Response 3 is $myData3\n");
+#print ("Response 3 is $myData3\n");
 
 #Send request #4
 my $url4 = "$soastaUrl".'/dwr/call/plaincall/CommonPollerProxy.doPoll.dwr';
-print ("Url 4 is $url4\n");
+#print ("Url 4 is $url4\n");
    $response4 = $browser->post( $url4,
    
 		'Content'=>'callCount=1
@@ -290,14 +289,14 @@ scriptSessionId='.$SystemGeneratedId.'/VOovRdk-$sUkFFRd9'
 #	'scriptSessionId'=> "$systemGeneratedId\/VOovRdk-\$sUkFFRd9"	
 
 $myData4=$response4->content ;
-print ("Response 4 is $myData4\n");
+#print ("Response 4 is $myData4\n");
 open FILE, ">2_SOASTA_RESULTS_DETAILS.xml" or die "Couldn't open file 2_SOASTA_RESULTS_DETAILS.xml for writing";
 print FILE $myData4;
 close FILE;
 sleep 2;
 
-#Step 4:
-print ("*** Step 4: Parse file 2_SOASTA_RESULTS_DETAILS.xml to:\n");
+#Step 5:
+print ("*** Step 5: Parse file 2_SOASTA_RESULTS_DETAILS.xml to:\n");
 print ("\t (a) Create a plot file which will be used to graph the response times of the transactions\n");
 print ("\t (b) Create a pass/fail results which will 'fail' the transactions if they're above threshold time\n");
 open FILE, "2_SOASTA_RESULTS_DETAILS.xml" or die "Couldn't open file 2_SOASTA_RESULTS_DETAILS.xml";
@@ -309,33 +308,33 @@ $resultSet=$1;
 @transactionResults = $resultSet =~ /\[(.*?)\]/gms;
 print ("\n\n");
 $numResults=@transactionResults;
-print ("Numresults is $numResults\n");
-print $transactionResults[1];
+#print ("Numresults is $numResults\n");
+#print $transactionResults[1];
 print ("\n\n");
 
-$csvavg = "Name,Avg,90th";
+#$csvavg = "Name,Avg,90th";
 #print ("Name\tavg resp time\t90th\tmin\tmax\tbytesSent\terrors\t\n");
 printf ("%50s %8s %8s %8s %8s %8s %8s *8s\n", "Name","avg","90th","min","max","bytesSent","errors","Count");
 
 $plotFileData="Name,Avg,90th,min,max,bytesSent,bytesRcvd,errors\n";
 
-open AVG,">3a_CloudTestPlotFile_Avg.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Avg.csv for writing\n");
-open N90th,">3b_CloudTestPlotFile_90th.csv" or die ("Couldn't open 3a_CloudTestPlotFile_90th.csv for writing\n");
-open MIN,">3c_CloudTestPlotFile_Min.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Min.csv for writing\n");
-open MAX,">3d_CloudTestPlotFile_Max.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Max.csv for writing\n");
-open ERROR,">3e_CloudTestPlotFile_Error.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Avg.csv for writing\n");
-open BYTESSENT,">3f_CloudTestPlotFile_BytesSent.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesSent.csv for writing\n");
-open BYTESRCVD,">3g_CloudTestPlotFile_BytesRcvd.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesRcvd.csv for writing\n");
-open COUNT,">3h_CloudTestPlotFile_Count.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Count.csv for writing\n");
+open AVG,">5a_CloudTestPlotFile_Avg.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Avg.csv for writing\n");
+open N90th,">5b_CloudTestPlotFile_90th.csv" or die ("Couldn't open 3a_CloudTestPlotFile_90th.csv for writing\n");
+open MIN,">5c_CloudTestPlotFile_Min.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Min.csv for writing\n");
+open MAX,">5d_CloudTestPlotFile_Max.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Max.csv for writing\n");
+open ERROR,">5e_CloudTestPlotFile_Error.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Avg.csv for writing\n");
+open BYTESSENT,">5f_CloudTestPlotFile_BytesSent.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesSent.csv for writing\n");
+open BYTESRCVD,">5g_CloudTestPlotFile_BytesRcvd.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesRcvd.csv for writing\n");
+open COUNT,">5h_CloudTestPlotFile_Count.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Count.csv for writing\n");
 
 print AVG "Name,Avg\n";print N90th "Name,90th\n";print MIN "Name,Min\n";print MAX "Name,Max\n";print ERROR "Name,Error\n";
-print BYTESSENT "Name,BytesSent\n";print BYTESRCVD "Name,BytesRcve\n";print COUNT "Name,Count\n";
+print BYTESSENT "Name,BytesSent\n";print BYTESRCVD "Name,BytesRcvd\n";print COUNT "Name,Count\n";
 foreach (@transactionResults)
 {
 	#print ("First item is $items[0]\n");
-	@items = split (',',$_);
+	@items = split (',',$_); 
 	$name = $items[0]; $name=~s/\\+//g; $name =~ s/"//g;
-	$collections=$items[5];
+	$collections=$items[6];
 	$avg=$items[7]/1000;
 	$min=$items[8]/1000;
 	$max=$items[9]/1000;
@@ -362,14 +361,14 @@ foreach (@transactionResults)
 		print MIN "$name,$min\n";
 		print MAX "$name,$max\n";
 		print BYTESSENT "$name,$bytesSent\n";
-		print BYTESTRCVD "$name,$bytesReceived\n";
+		print BYTESRCVD "$name,$bytesReceived\n";
 		print COUNT "$name,$collections\n";
 		print ERROR "$name,$errors\n";
 	}
 }
 
 close AVG;close N90th;close MIN;close MAX;close BYTESSENT;close BYTESRCVD; close COUNT;close ERROR;
-print ("Plot file is :\n$plotFileData\n");
+#print ("Plot file is :\n$plotFileData\n");
 open PLOTFILE, ">Plotfile.csv" or die ("Couldn't open PlotFile for writing\n");
 print PLOTFILE $plotFileData;
 close PLOTFILE;
@@ -397,12 +396,6 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  			$junitxml.="\t<testcase name=\"$SLA max of $SLA{$SLA}\" classname=\"Performance\" time=\"$actual{$SLA}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
  		
- 	 #Now add to the plot file which has transaction names on the top row and times on the next row
- 	 if ($actual{$SLA}!=NULL)
- 	 {
- 		if(length($theader)==0){$theader="$SLA";} else  {$theader.=",$SLA"};
-		if(length($ttime)==0){$ttime="$actual{$SLA}";} else  {$ttime.=",$actual{$SLA}"};
-	 }
  }
  
 #Step 4b: This does the 90th Response Time
@@ -424,14 +417,6 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  		{
  			$junitxml.="\t<testcase name=\"$transaction 90th percentile should be faster than SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
- 		
- 	 #Now add to the plot file which has transaction names on the top row and times on the next row
- 	 if ($ninetieth{$transaction}!=NULL )
- 	 {
- 	 	print ("Inside 90th plotfile \n");
- 		if(length($ninetiethheaders)==0){$ninetiethheaders="$transaction";} else  {$ninetiethheaders.=",$transaction"};
-		if(length($ninetiethvalues)==0){$ninetiethvalues="$ninetieth{$transaction}";} else  {$ninetiethvalues.=",$ninetieth{$transaction}"};
-	 }
  }
 
 #Step 4c: This does the Error count 
@@ -451,44 +436,18 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  		{
  			$junitxml.="\t<testcase name=\"$transaction max of $SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
- 		
- 	 #Now add to the plot file which has transaction names on the top row and times on the next row
- 	 if ($errors{$transaction}!=NULL)
- 	 {
- 	 	print ("WRITING ERROR STUFF\n");
- 	 	if(length($errorsHeader)==0){$errorsHeader="$transaction";} else  {$errorsHeader.=",$transaction"};
-		if(length($errorsValues)==0){$errorsValues="$errors{$transaction}";} else  {$errorsValues.=",$actual{$transaction}"};
-	 }
- }
+  }
 
 
- $plotfile="$theader\n$ttime\n"; #Holds the average response time plot Data
- $nplotfile="$ninetiethheaders\n$ninetiethvalues\n"; #Holds the 90th percentile Plot Data
- $eplotfile="BLAH$errorsHeader\n$errorsValues\n"; #Holds the error Plot Data
  $junitxml.='</testsuite>';
- 
- #Print the Average Response Time Plot File
- open PLOTOUTPUT , ">3_CloudTestPlotFileAvg.csv";
- print PLOTOUTPUT $plotfile;
- close PLOTOUTPUT;
- 
- #Print the Ninetieth Percentile Plot File
- open PLOTNOUTPUT , ">4_CloudTestPlotFile90th.csv";
- print PLOTNOUTPUT $nplotfile;
- close PLOTNOUTPUT;
- 
- #Print the Error Plot File
- open PLOTEOUTPUT , ">4b_CloudTestPlotFileErrors.csv";
- print PLOTEOUTPUT $eplotfile;
- close PLOTEOUTPUT;
- 
+  
  #Print the Performance Results PlotFile
  open PERF, ">5_PERF_THRESHOLD_RESULTS.xml";
  print PERF "$junitxml";
  close PERF;
  
   
- print ("\n\n Average PLOT FILE: \n $plotfile \n\n Ninetieth Percentile Plotfile:\n $nplotfile\n\n Error PlotFile: $eplotfile\n\nJunitXML:\n $junitxml\n");
+ print ("JunitXML:\n $junitxml\n");
  
 close FILE;
 close OUTPUT;
