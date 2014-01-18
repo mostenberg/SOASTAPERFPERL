@@ -349,6 +349,9 @@ foreach (@transactionResults)
 }
 
 print ("Plot file is :\n$plotFileData\n");
+open PLOTFILE ">Plotfile.csv" or die ("Couldn't open PlotFile for writing\n");
+print PLOtFILE $plotFileData;
+close PLOTFILE;
 
 $junitxml='<?xml version="1.0" encoding="UTF-8"?>'."\n";
 $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
