@@ -315,9 +315,21 @@ print ("\n\n");
 
 $csvavg = "Name,Avg,90th";
 #print ("Name\tavg resp time\t90th\tmin\tmax\tbytesSent\terrors\t\n");
-printf ("%50s %8s %8s %8s %8s %8s %8s \n", "Name","avg","90th","min","max","bytesSent","errors");
+printf ("%50s %8s %8s %8s %8s %8s %8s *8s\n", "Name","avg","90th","min","max","bytesSent","errors","Count");
 
 $plotFileData="Name,Avg,90th,min,max,bytesSent,bytesRcvd,errors\n";
+
+open AVG,">3a_CloudTestPlotFile_Avg.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Avg.csv for writing\n");
+open N90th,">3b_CloudTestPlotFile_90th.csv" or die ("Couldn't open 3a_CloudTestPlotFile_90th.csv for writing\n");
+open MIN,">3c_CloudTestPlotFile_Min.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Min.csv for writing\n");
+open MAX,">3d_CloudTestPlotFile_Max.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Max.csv for writing\n");
+open ERROR,">3e_CloudTestPlotFile_Error.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Avg.csv for writing\n");
+open BYTESSENT,">3f_CloudTestPlotFile_BytesSent.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesSent.csv for writing\n");
+open BYTESRCVD,">3g_CloudTestPlotFile_BytesRcvd.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesRcvd.csv for writing\n");
+open COUNT,">3h_CloudTestPlotFile_Count.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Count.csv for writing\n");
+
+print AVG "Name,Avg\n";print N90th "Name,90th\n";print MIN "Name,Min\n";print MAX "Name,Max\n";print ERROR "Name,Error\n";
+print BYTESSENT "Name,BytesSent\n";print BYTESRCVD "Name,BytesRcve\n";print COUNT "Name,Count\n";
 foreach (@transactionResults)
 {
 	#print ("First item is $items[0]\n");
@@ -326,7 +338,7 @@ foreach (@transactionResults)
 	$collections=$items[5];
 	$avg=$items[7]/1000;
 	$min=$items[8]/1000;
-	$max=$items[9];
+	$max=$items[9]/1000;
 	$stdev=$items[10];
 	$ninetieth=$items[11]/1000;
 	$bytesSent=$items[12];
@@ -340,14 +352,23 @@ foreach (@transactionResults)
 	$errors{$name}=$errors;
 	$bytesRcvd{$name}=$bytesRcvd;
 	$collections{$name}=$collections;
-	printf ("%50s    %3.3f    %3.3f     %3.3f    %3.3f   %3i    %3i \n", $name,$avg,$ninetieth,$min,$max,$bytesSent,$errors);
-	print ("Should plot for $name is : $shouldPlot{$name}\n");
+	printf ("%50s    %3.3f    %3.3f     %3.3f    %3.3f   %3i    %3i %3i\n", $name,$avg,$ninetieth,$min,$max,$bytesSent,$errors,$collections);
+	#print ("Should plot for $name is : $shouldPlot{$name}\n");
 	if ($shouldPlot{$name} eq "True")
 	{ 		
 		$plotFileData.="$name,$avg,$ninetieth,$min,$max,$bytesSent,$bytesReceived,$errors\n";
+		print AVG "$name,$avg\n";
+		print N90th "$name,$ninetieth\n";
+		print MIN "$name,$min\n";
+		print MAX "$name,$max\n";
+		print BYTESSENT "$name,$bytesSent\n";
+		print BYTESTRCVD "$name,$bytesReceived\n";
+		print COUNT "$name,$collections\n";
+		print ERROR "$name,$errors\n";
 	}
 }
 
+close AVG;close N90th;close MIN;close MAX;close BYTESSENT;close BYTESRCVD; close COUNT;close ERROR;
 print ("Plot file is :\n$plotFileData\n");
 open PLOTFILE, ">Plotfile.csv" or die ("Couldn't open PlotFile for writing\n");
 print PLOTFILE $plotFileData;
