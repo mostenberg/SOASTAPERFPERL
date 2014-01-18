@@ -349,8 +349,8 @@ foreach (@transactionResults)
 }
 
 print ("Plot file is :\n$plotFileData\n");
-open PLOTFILE ">Plotfile.csv" or die ("Couldn't open PlotFile for writing\n");
-print PLOtFILE $plotFileData;
+open PLOTFILE, ">Plotfile.csv" or die ("Couldn't open PlotFile for writing\n");
+print PLOTFILE $plotFileData;
 close PLOTFILE;
 
 $junitxml='<?xml version="1.0" encoding="UTF-8"?>'."\n";
