@@ -14,11 +14,10 @@
 
 local $/; #Changes end of line character so whole file will be slurped in.
 
-use lib '../libwww-perl/lib'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
-use lib './libwww-perl/lib'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib './libwww-perl-master/lib'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib './libwww-perl-master/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './libwww-perl/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
-use lib './libwww-perl/lib/LWP';
-use lib './libwww-perl-http/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib './http-message-master/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use LWP::UserAgent;
 use HTTP::Request;
 local %shouldPlot;
@@ -88,6 +87,12 @@ if ($length >=1)
 			(my $temp,$soastaUrl)=split("=",$argument);
 			print ("Url is $soastaUrl\n");
 		}
+
+		if ($argument=~/compname=/) 
+		{
+			(my $temp,$compName)=split("=",$argument);
+			print ("CompName is $compName\n");
+		}
 	}
 }
 else
@@ -102,6 +107,11 @@ else
 	);
 }
 
+#STEP 1.5: Run the load test composition
+$runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=$username password=$password url=$soastaUrl wait=yes format=junitxml file=1-SOASTA_RESULTS_ID.xml";
+
+print "Run comp string is $runCompString";
+system($runCompString);
 
 #Step 2: Get the results ID out of the file 1-SOASTA_RESULTS_ID.xml . We will pass this into comp
 print ("*** Step 2: Parse file 1-SOASTA_RESULTS_ID.xml to get performance ResultsID \n");
