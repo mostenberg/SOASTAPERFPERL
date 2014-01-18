@@ -181,7 +181,7 @@ $myData=~/.handleCallback\(\"\d\",\"\d\",\"(.*?)\"\)/;
 $SystemGeneratedId=$1;
 print "SystemGeneratedId= $SystemGeneratedId \n";
 #r.handleCallback("0","0","WEgC9ZM59FEvoGotA7PpjWbb8ek");
-
+system (pwd);  #For debugging, find what directory we're in...
 #Send Request #2
 #goto=&userName=mostenbergci&password=soasta
 my $url2 = "$soastaUrl".'/Login';
