@@ -327,8 +327,8 @@ open BYTESSENT,">5f_CloudTestPlotFile_BytesSent.csv" or die ("Couldn't open 3a_C
 open BYTESRCVD,">5g_CloudTestPlotFile_BytesRcvd.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesRcvd.csv for writing\n");
 open COUNT,">5h_CloudTestPlotFile_Count.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Count.csv for writing\n");
 
-print AVG "Name,Avg\n";print N90th "Name,90th\n";print MIN "Name,Min\n";print MAX "Name,Max\n";print ERROR "Name,Error\n";
-print BYTESSENT "Name,BytesSent\n";print BYTESRCVD "Name,BytesRcvd\n";print COUNT "Name,Count\n";
+#print AVG "Name,Avg\n";print N90th "Name,90th\n";print MIN "Name,Min\n";print MAX "Name,Max\n";print ERROR "Name,Error\n";
+#print BYTESSENT "Name,BytesSent\n";print BYTESRCVD "Name,BytesRcvd\n";print COUNT "Name,Count\n";
 foreach (@transactionResults)
 {
 	#print ("First item is $items[0]\n");
@@ -356,16 +356,25 @@ foreach (@transactionResults)
 	if ($shouldPlot{$name} eq "True")
 	{ 		
 		$plotFileData.="$name,$avg,$ninetieth,$min,$max,$bytesSent,$bytesReceived,$errors\n";
-		print AVG "$name,$avg\n";
-		print N90th "$name,$ninetieth\n";
-		print MIN "$name,$min\n";
-		print MAX "$name,$max\n";
-		print BYTESSENT "$name,$bytesSent\n";
-		print BYTESRCVD "$name,$bytesReceived\n";
-		print COUNT "$name,$collections\n";
-		print ERROR "$name,$errors\n";
+		$avgHdr.="$name,";$avgData.="$avg,";
+		$n90thHdr.="$name,";$n90thData.="$ninetieth,";
+		$minHdr.="$name,";$minData.="$min,";
+		$maxHdr.="$name,";$maxData.="$max,";
+		$bytesSentHdr.="$name,";$bytesSentData.="$bytesSent,";
+		$bytesRcvdHdr.="$name,";$bytesRcvdData.="$bytesReceived,";
+		$countHdr.="$name,";$countData.="$collections,";
+		$errorHdr.="$name,";$errorData.="$errors,";
 	}
 }
+
+		print AVG "$avgHdr\n$avgData\n";
+		print N90th "$n90thHdr\n$n90thData\n";
+		print MIN "$minHdr\n$minData\n";
+		print MAX "$maxHdr\n$maxData\n";
+		print BYTESSENT "$bytesSentHdr\n$bytesSentData\n";
+		print BYTESRCVD "$bytesRcvdHdr\n$bytesRcvdData\n";
+		print COUNT "$countHdr\n$countData\n";
+		print ERROR "$errorHdr\n$errorData\n";
 
 close AVG;close N90th;close MIN;close MAX;close BYTESSENT;close BYTESRCVD; close COUNT;close ERROR;
 #print ("Plot file is :\n$plotFileData\n");
