@@ -16,7 +16,7 @@ local $/; #Changes end of line character so whole file will be slurped in.
 
 use lib './libwww-perl-master/lib'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './libwww-perl-master/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
-use lib './SOASTAPERFPERL/libwww-perl-master/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
+use lib './SOASTA/libwww-perl-master/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './libwww-perl/lib/LWP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use lib './http-message-master/lib/HTTP'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use LWP::UserAgent;
