@@ -147,6 +147,28 @@ $browser->cookie_jar({});  #Enable Cookies
 #uncomment the below to record calls in CloudTest
 # $browser->proxy(['http', 'ftp'], 'http://localhost:4440/');
 
+my $url="$soastaUrl".'/';
+ my @ns_headers = (
+   'User-Agent' => 'Mozilla/4.76 [en] (Win98; U)',
+   'Accept' => 'image/gif, image/x-xbitmap, image/jpeg, 
+        image/pjpeg, image/png, */*',
+   'Accept-Charset' => 'iso-8859-1,*,utf-8',
+   'Accept-Language' => 'en-US',
+  );
+
+ $response1 = $browser->post( $url,
+   [
+	  ],
+   'Accept' => 'image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*',
+   'Accept-Charset' => 'iso-8859-1,*,utf-8',
+   'Accept-Language' => 'en-US',
+ );
+
+ $myDataBuild=$response1->content;
+ $myDataBuild =~ /\<meta name=\"buildnumber\" content=\"(.*?)\"/;
+ $buildNumber = $1;
+ print ("Build numer is $buildNumber\n");
+
 #print ("Soasta URL is $soastaUrl\n");
 my $url = "$soastaUrl".'/dwr/call/plaincall/__System.generateId.dwr';
 #print ("Url is $url\n");
@@ -184,7 +206,7 @@ $myData=~/.handleCallback\(\"\d\",\"\d\",\"(.*?)\"\)/;
 $SystemGeneratedId=$1;
 #print "SystemGeneratedId= $SystemGeneratedId \n";
 #r.handleCallback("0","0","WEgC9ZM59FEvoGotA7PpjWbb8ek");
-system (pwd);  #For debugging, find what directory we're in...
+#system (pwd);  #For debugging, find what directory we're in...
 #Send Request #2
 #goto=&userName=mostenbergci&password=soasta
 my $url2 = "$soastaUrl".'/Login';
@@ -238,7 +260,7 @@ c0-e5=array:[reference:c0-e6]
 c0-e22=string:971d0b40-b078-96c2-8cdf-669f894ec842
 c0-e2=Object_Object:{taskName:reference:c0-e3, methodName:reference:c0-e4, methodArgs:reference:c0-e5, callbackUUID:reference:c0-e22}
 c0-e1=array:[reference:c0-e2]
-c0-e23=string:6872.81
+c0-e23=string:'.$buildNumber.'
 c0-e24=string:9a8c1355-c9eb-d0c1-1e9a-5308a06f9b76
 c0-param0=Object_Object:{methodRequests:reference:c0-e1, clientVersion:reference:c0-e23, pollerUUID:reference:c0-e24}
 batchId=45
