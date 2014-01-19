@@ -52,6 +52,7 @@ if ($length >=1)
 			$SLA{$name}=$threshold;
 			printf ("     %-6s %-25s %3.3f \n","Avg",$name,$threshold);
 			$shouldPlot{$name}="True";
+			$numTests++;
 		}
 		if ($argument=~/:90th:/) 
 		{
@@ -59,43 +60,54 @@ if ($length >=1)
 			$SLAninetieth{$name}=$threshold;
 			printf ("     %-6s %-25s %3.3f \n","90th",$name,$threshold);
 			$shouldPlot{$name}="True";
+			$numTests++;
 		}
 		if ($argument=~/:Errors:/) 
 		{
 			(my $name,my $threshold)=split(":Errors:",$argument);
 			$SLAerrors{$name}=$threshold;
-			printf ("     %-6s %-25s %3.3f \n","Errors",$name,$threshold);
+			printf ("     %-6s %-25s %-7i \n","Errors",$name,$threshold);
 			$shouldPlot{$name}="True";
+			$numTests++;
 		}
 		if ($argument=~/:BytesSent:/) 
 		{
 			(my $name,my $threshold)=split(":BytesSent:",$argument);
 			$SLAbytesSent{$name}=$threshold;
-			$shouldPlot{$name}="True";			
+			printf ("     %-6s %-25s %-7i \n","BytesSent",$name,$threshold);
+			$shouldPlot{$name}="True";
+			$numTests++;			
 		}
 		if ($argument=~/:BytesRcvd:/) 
 		{
 			(my $name,my $threshold)=split(":BytesRcvd:",$argument);
 			$SLAbytesRcvd{$name}=$threshold;
-			$shouldPlot{$name}="True";		
+			printf ("     %-6s %-25s %-7i \n","BytesRcvd",$name,$threshold);
+			$numTests++;	
 		}
 		if ($argument=~/:Min:/) 
 		{
 			(my $name,my $threshold)=split(":Min:",$argument);
 			$SLAmin{$name}=$threshold;
-			$shouldPlot{$name}="True";		
+			printf ("     %-6s %-25s %3.3f \n","Min",$name,$threshold);
+			$shouldPlot{$name}="True";
+			$numTests++;		
 		}
 		if ($argument=~/:Max:/) 
 		{
-			(my $name,my $threshold)=split(":Min:",$argument);
+			(my $name,my $threshold)=split(":Max:",$argument);
 			$SLAmax{$name}=$threshold;
-			$shouldPlot{$name}="True";		
+			printf ("     %-6s %-25s %3.3f \n","Max",$name,$threshold);
+			$shouldPlot{$name}="True";
+			$numTests++;		
 		}
 		if ($argument=~/:Count:/) 
 		{
 			(my $name,my $threshold)=split(":Count:",$argument);
 			$SLAcount{$name}=$threshold;
-			$shouldPlot{$name}="True";		
+			printf ("     %-6s %-25s %7i \n","Count",$name,$threshold);
+			$shouldPlot{$name}="True";
+			$numTests++;	
 		}
 		if ($argument=~/username/) 
 		{
@@ -122,14 +134,26 @@ if ($length >=1)
 }
 else
 {
-	print "No command line argugments, so drawing values from hard-coded thresholds in PERL script.\n";
+	print "No command line arguments, so drawing values from hard-coded thresholds in PERL script.\n";
 	#If you don't want to enter transaction names and max times from command line, then enter the transaction SLA values here. Use the format "Transaction Name"=>"maxResponseTime"
-	%SLA =
-	( 	"Bees Homepage"=> ".500",
-		"Bees Product Page"=>".500",
-		"Bees Product"=>".500",
-		"Bees Add to Cart"=>".500"
-	);
+	print ("Usage:
+	a) Available command line switches are:
+		i)    username=<NAME>  		(required) - the Username used to login to the CloudTest server
+		ii)   password=<PWD>  		(required) - The password used to login to the CloudTest Server.
+		iii)  url=<URL>      		(required) - The URL of the CloudTest server (e.g. http://myserver.com/concerto )
+		iv)   compname=<NAME2> 		(required) - The name of the composition to play on the CloudTest server
+		v)   '<NAME>:Avg:<VALUE>'  	(optional) - A transaction name and threshold for the average response time.
+		vi)  '<NAME>:90th:<VALUE>'  (optional) - A transaction name and threshold for the 90th percentile time
+		vii) '<NAME>:Min:<VALUE>'  	(optional) - A transaction name and threshold for the minimum response time
+		viii)'<NAME>:Max:<VALUE>   	(optional) - A transaction name and threshold for maximum response time.
+		ix)  '<NAME>:BytesSent:<VALUE>  (optional) - A transaction name and threshold for total bytes sent.
+		x)   '<NAME>:BytesRcvd:<VALUE>  (optional) - A transaction name and threshold for total bytes received.
+		xi)  '<NAME>:Errors:<VALUE>     (optional) - A transaction name and threshold for number of errors in that transaction
+		xii) '<NAME>:Count:<VALUE>		(optional) - A transaction name and threshold for min number of transactions.
+4.  Running the PERL script will create several .csv files in your workspace for things like average response time, 90th percentile response time and errors. Install the plot plugin and then 'Add Plot' to your build to create graphs of these values.
+5.	Running the PERL script also creates a file in the SOASTA directory of your workspace called : 5_PERF_THRESHOLD_RESULTS.xml . This file contains PASS/FAIL info for each of the transactions you set a threshold for in your load test.  Add a step in the build to 'Publish JUNIT Test Result Report' which will utilize this file for the data.
+"	);
+	
 }
 
 #STEP 2: Run the loadtest composition
@@ -146,6 +170,13 @@ $results=<FILE>;
 $results =~ /resultID=\"(\d+)\"/;
 $resultID=$1;
 print ("\tCaptured results id from file.  ResultsID was $resultID\n");
+$results =~ /timestamp="(.*?)"/;
+$timestamp = $1;
+print ("\tCaptured timestamp from file.  Timestamp was $timestamp\n");
+$results =~ /errors=\"(\d+)\"/;
+$compErrors=$1;
+print ("\tCaptured errors from filed. Errors was $compErrors\n");
+
 close FILE;
 
 #STEP 4: Get results details
@@ -352,9 +383,7 @@ $numResults=@transactionResults;
 #print $transactionResults[1];
 print ("\n\n");
 
-#$csvavg = "Name,Avg,90th";
-#print ("Name\tavg resp time\t90th\tmin\tmax\tbytesSent\terrors\t\n");
-printf ("%50s %8s %8s %8s %8s %8s %8s *8s\n", "Name","avg","90th","min","max","bytesSent","errors","Count");
+printf ("%50s %8s %8s %8s %8s %12s %12s %8s %8s\n", "Name","avg","90th","min","max","bytesSent","bytesRcvd","errors","Count");
 
 $plotFileData="Name,Avg,90th,min,max,bytesSent,bytesRcvd,errors\n";
 
@@ -367,8 +396,6 @@ open BYTESSENT,">5f_CloudTestPlotFile_BytesSent.csv" or die ("Couldn't open 3a_C
 open BYTESRCVD,">5g_CloudTestPlotFile_BytesRcvd.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesRcvd.csv for writing\n");
 open COUNT,">5h_CloudTestPlotFile_Count.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Count.csv for writing\n");
 
-#print AVG "Name,Avg\n";print N90th "Name,90th\n";print MIN "Name,Min\n";print MAX "Name,Max\n";print ERROR "Name,Error\n";
-#print BYTESSENT "Name,BytesSent\n";print BYTESRCVD "Name,BytesRcvd\n";print COUNT "Name,Count\n";
 foreach (@transactionResults)
 {
 	#print ("First item is $items[0]\n");
@@ -389,9 +416,11 @@ foreach (@transactionResults)
 	$actual{$name}=$avg;
 	$ninetieth{$name}=$ninetieth;
 	$errors{$name}=$errors;
-	$bytesRcvd{$name}=$bytesRcvd;
+	$bytesRcvd{$name}=$bytesReceived;
 	$collections{$name}=$collections;
-	printf ("%50s    %3.3f    %3.3f     %3.3f    %3.3f   %3i    %3i %3i\n", $name,$avg,$ninetieth,$min,$max,$bytesSent,$errors,$collections);
+	$max{$name}=$max;
+	$min{$name}=$min;
+	printf ("%50s    %-3.3f    %-3.3f     %-3.3f    %-3.3f %12i %12i %6i %6i\n", $name,$avg,$ninetieth,$min,$max,$bytesSent,$bytesReceived,$errors,$collections);
 	#print ("Should plot for $name is : $shouldPlot{$name}\n");
 	if ($shouldPlot{$name} eq "True")
 	{ 		
@@ -423,7 +452,7 @@ print PLOTFILE $plotFileData;
 close PLOTFILE;
 
 $junitxml='<?xml version="1.0" encoding="UTF-8"?>'."\n";
-$junitxml.="<testsuite tests=\"$numSLAItems\">\n";
+$junitxml.="<testsuite tests=\"$numTests\" errors=\"$compErrors\" timestamp=\"$timestamp\">\n";
 
 #Step 4a: This does the Average Response Time
  foreach my $SLA (sort keys %SLA)
@@ -487,7 +516,7 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  		}	
   }
 
-#Step 4c: This does the min count 
+#Step 4c: This does the min time 
  foreach my $transaction  (sort keys %SLAmin)
  {
  	if    ($SLAmin{$transaction}==NULL) 	 {$status="FAIL"; $message="Transaction \"$transaction\" does not appear in SOASTA composition";}
@@ -500,11 +529,27 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  		}
  	else
  		{
- 			$junitxml.="\t<testcase name=\"$transaction 90th max of $SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
+ 			$junitxml.="\t<testcase name=\"$transaction min of $SLAmin{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
   }
 
 
+#Step 4c: This does the max time 
+ foreach my $transaction  (sort keys %SLAmax)
+ {
+ 	if    ($SLAmax{$transaction}==NULL) 	 {$status="FAIL"; $message="Transaction \"$transaction\" does not appear in SOASTA composition";}
+ 	elsif ($max{$transaction} > $SLAmax{$transaction}) {$status="FAIL"; $message="Transaction $transaction exceeded allowable maximum time of $SLAmax{$transaction}. (it was $max{$transaction})";}
+ 	else  {$status="PASS"; $message="Transaction $transaction maximum time was greater than $SLAmax{$transaction}. (it was $max{$transaction})";}
+ 	
+ 	if ($status ne "FAIL") 
+ 		{
+ 			$junitxml.="\t<testcase name=\"$transaction maximum response time less than of $SLAmax{$transaction}\" classname=\"Performance\" time=\"$max{$transaction}\" />\n";			
+ 		}
+ 	else
+ 		{
+ 			$junitxml.="\t<testcase name=\"$transaction max of $SLAmax{$transaction}\" classname=\"Performance\" time=\"$max{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
+ 		}	
+  }
 
 
 
