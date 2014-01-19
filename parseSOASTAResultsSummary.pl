@@ -79,6 +79,24 @@ if ($length >=1)
 			$SLAbytesRcvd{$name}=$threshold;
 			$shouldPlot{$name}="True";		
 		}
+		if ($argument=~/:Min:/) 
+		{
+			(my $name,my $threshold)=split(":Min:",$argument);
+			$SLAmin{$name}=$threshold;
+			$shouldPlot{$name}="True";		
+		}
+		if ($argument=~/:Max:/) 
+		{
+			(my $name,my $threshold)=split(":Min:",$argument);
+			$SLAmax{$name}=$threshold;
+			$shouldPlot{$name}="True";		
+		}
+		if ($argument=~/:Count:/) 
+		{
+			(my $name,my $threshold)=split(":Count:",$argument);
+			$SLAcount{$name}=$threshold;
+			$shouldPlot{$name}="True";		
+		}
 		if ($argument=~/username/) 
 		{
 			(my $temp, $username)=split("=",$argument);
@@ -465,9 +483,30 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  		}
  	else
  		{
+ 			$junitxml.="\t<testcase name=\"$transaction errors max of $SLAerrors{$transaction}\" classname=\"Performance\" time=\"$errors{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
+ 		}	
+  }
+
+#Step 4c: This does the min count 
+ foreach my $transaction  (sort keys %SLAmin)
+ {
+ 	if    ($SLAmin{$transaction}==NULL) 	 {$status="FAIL"; $message="Transaction \"$transaction\" does not appear in SOASTA composition";}
+ 	elsif ($min{$transaction} > $SLAmin{$transaction}) {$status="FAIL"; $message="Transaction $transaction exceeded allowable minimum time of $SLAmin{$transaction}. (it was $min{$transaction})";}
+ 	else  {$status="PASS"; $message="Transaction $transaction minimum time was less than $SLAmin{$transaction}. (it was $min{$transaction})";}
+ 	
+ 	if ($status ne "FAIL") 
+ 		{
+ 			$junitxml.="\t<testcase name=\"$transaction minimum response time less than of $SLAmin{$transaction}\" classname=\"Performance\" time=\"$min{$transaction}\" />\n";			
+ 		}
+ 	else
+ 		{
  			$junitxml.="\t<testcase name=\"$transaction 90th max of $SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
   }
+
+
+
+
 
  $junitxml.='</testsuite>';
   
