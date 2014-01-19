@@ -398,11 +398,11 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  	
  	if ($status ne "FAIL") 
  		{
- 			$junitxml.="\t<testcase name=\"$SLA max of $SLA{$SLA}\" classname=\"Performance\" time=\"$actual{$SLA}\" />\n";			
+ 			$junitxml.="\t<testcase name=\"$SLA avg < $SLA{$SLA}\" classname=\"Performance\" time=\"$actual{$SLA}\" />\n";			
  		}
  	else
  		{
- 			$junitxml.="\t<testcase name=\"$SLA max of $SLA{$SLA}\" classname=\"Performance\" time=\"$actual{$SLA}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
+ 			$junitxml.="\t<testcase name=\"$SLA avg < $SLA{$SLA}\" classname=\"Performance\" time=\"$actual{$SLA}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
  		
  }
@@ -420,7 +420,7 @@ $junitxml.="<testsuite tests=\"$numSLAItems\">\n";
  	
  	if ($status ne "FAIL") 
  		{
- 			$junitxml.="\t<testcase name=\"$transaction 90th of $SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$SLA}\" />\n";			
+ 			$junitxml.="\t<testcase name=\"$transaction 90th of $SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\" />\n";			
  		}
  	else
  		{
