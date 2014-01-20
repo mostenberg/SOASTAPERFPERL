@@ -454,6 +454,8 @@ close PLOTFILE;
 $junitxml='<?xml version="1.0" encoding="UTF-8"?>'."\n";
 $junitxml.="<testsuite tests=\"$numTests\" errors=\"$compErrors\" timestamp=\"$timestamp\">\n";
 
+$junitxml.="\t<testcase name=\"Link to detailed Results: $soastaUrl\/\?resultId=$resultID\" classname=\"Performance\" time=\"0\" />\n";		
+
 #Step 4a: This does the Average Response Time
  foreach my $SLA (sort keys %SLA)
  {
