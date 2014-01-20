@@ -495,7 +495,7 @@ $junitxml.="\t<testcase name=\"Link to detailed Results: $soastaUrl\/\?resultId=
  		}
  	else
  		{
- 			$junitxml.="\t<testcase name=\"$transaction 90th percentile should be faster than SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
+ 			$junitxml.="\t<testcase name=\"$transaction 90th percentile should be faster than $SLAninetieth{$transaction}\" classname=\"Performance\" time=\"$ninetieth{$transaction}\"> \n\t\t<failure type=\"performance\"> $message</failure>\n\t</testcase>\n";
  		}	
  }
 
