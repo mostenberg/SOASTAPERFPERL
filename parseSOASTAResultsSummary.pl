@@ -28,10 +28,13 @@ use lib './HTTP-Cookies-6.01/lib'; #When launching on CloudBees, this will tell 
 use lib './SOASTA/HTTP-Cookies-6.01/lib'; #When launching on CloudBees, this will tell it where to find the HTTP libraries.
 use LWP::UserAgent;
 use HTTP::Request;
+
+use constant DEBUG => $ENV{DEBUG}? 1 : 0 ; #IF ENV is DEBUG, then DEBUG=1;
+
 local %shouldPlot;
 $soastaUrl="";
 
-print "\n\n***BEGIN  parseSOASTAResultsSummary.pl\n\n";
+print "\n\n***BEGIN  parseSOASTAResultsSummary.pl\n\n" ;
 print ("***STEP 1. Parse the command line arguments to get the thresholds for each value\n");
 #Step 1: Parse the command line arguments to get the thresholds for each of the values.
 # Enter the transaction SLA values here. Use the format "Transaction Name:Avg:Value  TransactionName:90th:Value 
@@ -259,7 +262,7 @@ $SystemGeneratedId=$1;
 #Send Request #2
 #goto=&userName=mostenbergci&password=soasta
 my $url2 = "$soastaUrl".'/Login';
-#print ("Url2 is $url2 and $password is $password\n");
+print ("Url2 is $url2 and $password is $password\n") if (DEBUG);
    $response2 = $browser->post( $url2,
    [
 		'goto'=>'',
@@ -275,13 +278,12 @@ my $url2 = "$soastaUrl".'/Login';
 $myData2=$response2->content ;
 #print ("Response 2 is $myData2\n");
 
-#print ("Result id is $resultId\n");
+print ("Result id is $resultId\n");
 #Send Request #3
 my $url3 = "$soastaUrl".'/dwr/call/plaincall/CommonPollerProxy.doPoll.dwr';
-#print ("Url 3 is $url3\n");
+print ("Url 3 is $url3\n") if (DEBUG);
 
    $response3 = $browser->post( $url3,
-   
 		'Content'=>'callCount=1
 windowName=
 c0-scriptName=CommonPollerProxy
@@ -329,11 +331,12 @@ sleep 5;
 #	'scriptSessionId'=> "$systemGeneratedId\/VOovRdk-\$sUkFFRd9"	
 
 $myData3=$response3->content ;
-#print ("Response 3 is $myData3\n");
+print ("Response 3 is $myData3\n")if (DEBUG);
 
+if ($myData3!~/resultSet:/){
 #Send request #4
 my $url4 = "$soastaUrl".'/dwr/call/plaincall/CommonPollerProxy.doPoll.dwr';
-#print ("Url 4 is $url4\n");
+print ("Url 4 is $url4\n")if (DEBUG);
    $response4 = $browser->post( $url4,
    
 		'Content'=>'callCount=1
@@ -360,7 +363,12 @@ scriptSessionId='.$SystemGeneratedId.'/VOovRdk-$sUkFFRd9'
 #	'scriptSessionId'=> "$systemGeneratedId\/VOovRdk-\$sUkFFRd9"	
 
 $myData4=$response4->content ;
-#print ("Response 4 is $myData4\n");
+}
+else 
+{
+	$myData4=$myData3;  #If we got the results on the first call, don't bother making the second call.
+}
+print ("Response 4 is $myData4\n")if (DEBUG);
 open FILE, ">2_SOASTA_RESULTS_DETAILS.xml" or die "Couldn't open file 2_SOASTA_RESULTS_DETAILS.xml for writing";
 print FILE $myData4;
 close FILE;
