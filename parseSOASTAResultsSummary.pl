@@ -435,7 +435,7 @@ scriptSessionId='.$SystemGeneratedId.'/fAGzvgk-q*IEFnXOv
 			$ninetieth=$items[9]/1000;
 			$bytesSent=$items[10];
 			$bytesReceived=$items[11];
-			$errors=$items[16];
+			$errors=$items[15];
 	
 			$csv+= "";
 			#print "Name is $name and avg is $avg and 90th is $ninetieth and errors are $errors\n\n";
@@ -529,7 +529,7 @@ scriptSessionId='.$SystemGeneratedId.'/fAGzvgk-q*IEFnXOv
 		 foreach my $transaction  (sort keys %SLAerrors)
 		 {
 			if    ($SLAerrors{$transaction}==NULL) 	 {$status="FAIL"; $message="Transaction \"$transaction\" does not appear in SOASTA composition";}
-			elsif ($errors{$transaction} > $SLAerrors{$transaction}) {$status="FAIL"; $message="Transaction $transaction exceeded allowable error count of $SLAerrors{$transaction}. (it was $errors{$transaction})";}
+			elsif ($errors{$transaction} > $SLAerrors{$transaction}) {$status="FAIL"; $message="Transaction $transaction exceeded allowable error count of $SLAerrors{$transaction}. (it was $errors{$transaction} )";}
 			else  {$status="PASS"; $message="Transaction $transaction was less than maximum error count of $SLAerrors{$transaction}. (it was $errors{$transaction})";}
 			#print ("Transaction: \"$SLA\"\t SLA: $SLA{$SLA} \t Actual: $actual{$SLA}\n");
 			#print ("Status: $status\nMessage: $message\n\n");
