@@ -130,12 +130,21 @@ if ($length >=1)
 			(my $temp,$compName)=split("=",$argument);
 			#print ("CompName is $compName\n");
 		}
-		if ($argument=~/compErrors:/) 
+		if ($argument=~/compErrors=/) 
 		{
-			(my $temp,$maxCompErrors)=split(":",$argument);
+			(my $temp,$maxCompErrors)=split("=",$argument);
 			printf ("     %-6s %-25s %7i \n","Max","<Overall Errors>",$maxCompErrors);
 			$shouldPlot{"compErrors"}="True";
 		}
+		
+		if ($argument=~/scommandoptions=/) 
+		{
+			(my $temp,$scommandoptions)=split("=",$argument,2);
+			printf ("     %-6s %-25s %40s \n","Txt","Scommand Options",$scommandoptions);
+			$shouldPlot{"compErrors"}="True";
+		}
+		else
+		{$scommandoptions="";}
 	}
 }
 else
@@ -152,11 +161,12 @@ else
 		vi)  '<NAME>:90th:<VALUE>'  (optional) - A transaction name and threshold for the 90th percentile time
 		vii) '<NAME>:Min:<VALUE>'  	(optional) - A transaction name and threshold for the minimum response time
 		viii)'<NAME>:Max:<VALUE>   	(optional) - A transaction name and threshold for maximum response time.
-		ix)  '<NAME>:BytesSent:<VALUE>  (optional) - A transaction name and threshold for total bytes sent.
-		x)   '<NAME>:BytesRcvd:<VALUE>  (optional) - A transaction name and threshold for total bytes received.
-		xi)  '<NAME>:Errors:<VALUE>     (optional) - A transaction name and threshold for number of errors in that transaction
-		xii) '<NAME>:Count:<VALUE>		(optional) - A transaction name and threshold for min number of transactions.
-		xiii)'compErrors:<VALUE>        (optional) - A maximum allowable errors on the whole comp (not necessarily associated to a transaction)
+		ix)  '<NAME>:BytesSent:<VALUE>'  (optional) - A transaction name and threshold for total bytes sent.
+		x)   '<NAME>:BytesRcvd:<VALUE>'  (optional) - A transaction name and threshold for total bytes received.
+		xi)  '<NAME>:Errors:<VALUE>'     (optional) - A transaction name and threshold for number of errors in that transaction
+		xii) '<NAME>:Count:<VALUE>'		(optional) - A transaction name and threshold for min number of transactions.
+		xiii)'compErrors=<VALUE>'       (optional) - A maximum allowable errors on the whole comp (not necessarily associated to a transaction)
+		xiii)'scommandoptions=<VALUE>'        (optional) - An additional string to be appended to the scommand call for additional options. Make sure you put the full item in single quotes
 4.  Running the PERL script will create several .csv files in your workspace for things like average response time, 90th percentile response time and errors. Install the plot plugin and then 'Add Plot' to your build to create graphs of these values.
 5.	Running the PERL script also creates a file in the SOASTA directory of your workspace called : 5_PERF_THRESHOLD_RESULTS.xml . This file contains PASS/FAIL info for each of the transactions you set a threshold for in your load test.  Add a step in the build to 'Publish JUNIT Test Result Report' which will utilize this file for the data.
 "	);
@@ -164,7 +174,7 @@ else
 }
 
 #STEP 2: Run the loadtest composition
-$runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=$username password=$password url=$soastaUrl wait=yes format=junitxml file=1-SOASTA_RESULTS_ID.xml";
+$runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=$username password=$password url=$soastaUrl wait=yes format=junitxml file=1-SOASTA_RESULTS_ID.xml $scommandoptions";
 
 print "\n*** Step 2: Playing the composition by passing the following arguments to SCOMMAND:\n\t$runCompString\n";
 system($runCompString);
@@ -508,7 +518,7 @@ scriptSessionId='.$SystemGeneratedId.'/ZuWpyhk-xKjl7aUgs
 		$junitxml='<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		$junitxml.="<testsuite tests=\"$numTests\" errors=\"$compErrors\" timestamp=\"$timestamp\">\n";
 
-		$junitxml.="\t<testcase name=\"Link to detailed Results: $soastaUrl\/\/Central\?initResultsTab=$resultID\" classname=\"Performance\" time=\"0\" />\n";		
+		$junitxml.="\t<testcase name=\"Link to detailed Results: $soastaUrl\/Central\?initResultsTab=$resultID\" classname=\"Performance\" time=\"0\" />\n";		
 		#/Central?initResultsTab=16753
 		#Step 4a: This does the Average Response Time
 		 foreach my $SLA (sort keys %SLA)
@@ -824,6 +834,7 @@ scriptSessionId='.$SystemGeneratedId.'/fAGzvgk-q*IEFnXOv
 		open BYTESSENT,">5f_CloudTestPlotFile_BytesSent.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesSent.csv for writing\n");
 		open BYTESRCVD,">5g_CloudTestPlotFile_BytesRcvd.csv" or die ("Couldn't open 3a_CloudTestPlotFile_BytesRcvd.csv for writing\n");
 		open COUNT,">5h_CloudTestPlotFile_Count.csv" or die ("Couldn't open 3a_CloudTestPlotFile_Count.csv for writing\n");
+		open COMPERRORS,">5h_CloudTestPlotFile_CompErrors.csv" or die ("Couldn't open 5h_CloudTestPlotFile_CompErrors.csv for writing\n");
 
 		foreach (@transactionResults)
 		{
@@ -873,8 +884,9 @@ scriptSessionId='.$SystemGeneratedId.'/fAGzvgk-q*IEFnXOv
 				print BYTESRCVD "$bytesRcvdHdr\n$bytesRcvdData\n";
 				print COUNT "$countHdr\n$countData\n";
 				print ERROR "$errorHdr\n$errorData\n";
+				print COMPERRORS "Composition Errors\n$compErrors\n";
 
-		close AVG;close N90th;close MIN;close MAX;close BYTESSENT;close BYTESRCVD; close COUNT;close ERROR;
+		close AVG;close N90th;close MIN;close MAX;close BYTESSENT;close BYTESRCVD; close COUNT;close ERROR;close COMPERRORS;
 		#print ("Plot file is :\n$plotFileData\n");
 		open PLOTFILE, ">Plotfile.csv" or die ("Couldn't open PlotFile for writing\n");
 		print PLOTFILE $plotFileData;
@@ -1242,7 +1254,7 @@ scriptSessionId='.$SystemGeneratedId.'/VOovRdk-$sUkFFRd9
 		$junitxml='<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		$junitxml.="<testsuite tests=\"$numTests\" errors=\"$compErrors\" timestamp=\"$timestamp\">\n";
 
-		$junitxml.="\t<testcase name=\"Link to detailed Results: $soastaUrl\/\/Central\?initResultsTab=$resultID\" classname=\"Performance\" time=\"0\" />\n";		
+		$junitxml.="\t<testcase name=\"Link to detailed Results: $soastaUrl\/Central\?initResultsTab=$resultID\" classname=\"Performance\" time=\"0\" />\n";		
 		#/Central?initResultsTab=16753
 		#Step 4a: This does the Average Response Time
 		 foreach my $SLA (sort keys %SLA)
