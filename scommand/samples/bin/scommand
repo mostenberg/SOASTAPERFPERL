@@ -1,0 +1,15 @@
+#!/bin/bash
+
+BIN_DIR=`dirname "$0"`
+. "$BIN_DIR/setclasspath"
+
+# Setup the JVM
+if [ "x$JAVA" = "x" ]; then
+    if [ "x$JAVA_HOME" != "x" ]; then
+        JAVA="$JAVA_HOME/bin/java"
+    else
+        JAVA="java"
+    fi
+fi
+
+"$JAVA" -ea -cp "${_CLASSPATH}" ${CLOUDTEST_JAVA_OPTS} -Djava.util.logging.config.file="$BIN_DIR/logging.properties.scommand" com.soasta.tools.scommand.Main "$@"
