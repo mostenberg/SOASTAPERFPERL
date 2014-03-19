@@ -32,6 +32,13 @@ local %shouldPlot;
 $soastaUrl="";
 
 
+##
+## err...  looks like scommand returns a 1 on success for some odd reason.
+##
+use constant SCOMMAND_NOERROR => 1 ;
+
+
+
 print "\n\n***BEGIN  parseSOASTAResultsSummary.pl\n\n";
 print ("***STEP 1. Parse the command line arguments to get the thresholds for each value\n");
 #Step 1: Parse the command line arguments to get the thresholds for each of the values.
@@ -210,7 +217,7 @@ print "\n*** Step 2: Playing the composition by passing the following arguments 
 system($runCompString);
 my $rc = $? >> 8 ;
 
-if ( $rc != 0 )
+if ( $rc != SCOMMAND_NOERROR )
 {
     print( "ERROR: could not execute $runCompString successfully.   errorCode = $rc - $!\n" ) ;
     exit ( 1 ) ;
