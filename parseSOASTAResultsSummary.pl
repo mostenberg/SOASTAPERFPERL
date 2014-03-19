@@ -35,7 +35,10 @@ $soastaUrl="";
 ##
 ## err...  looks like scommand returns a 1 on success for some odd reason.
 ##
-use constant SCOMMAND_NOERROR => 1 ;
+## Commenting this stuff out because 51 introduced error level 1 on success vs. previous build which was 0.  
+## until we fix it we have no error checking like before.
+##
+##use constant SCOMMAND_NOERROR => 1 ;
 
 
 
@@ -217,11 +220,11 @@ print "\n*** Step 2: Playing the composition by passing the following arguments 
 system($runCompString);
 my $rc = $? >> 8 ;
 
-if ( $rc != SCOMMAND_NOERROR )
-{
-    print( "ERROR: could not execute $runCompString successfully.   errorCode = $rc - $!\n" ) ;
-    exit ( 1 ) ;
-}
+#if ( $rc != SCOMMAND_NOERROR )
+#{
+#    print( "ERROR: could not execute $runCompString successfully.   errorCode = $rc - $!\n" ) ;
+#    exit ( 1 ) ;
+#}
 
 
 
