@@ -188,6 +188,7 @@ if ( $^O == 'darwin' )
     print("Detected MAC | Linix based operating system\n") ;
     system("unzip -o scommand.zip") ;
     
+    system("ls -al") ;
     ## todo: need to make sure this worked ##
 }
 else
@@ -195,7 +196,7 @@ else
     print "error: could not decompress tools for OS = " . $^O . "\n" ;
     exit ( 1 ) ;
 }
-
+sleep 3 ;
 
 
 #STEP 2: Run the loadtest composition
