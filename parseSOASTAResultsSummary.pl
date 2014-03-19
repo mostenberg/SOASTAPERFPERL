@@ -31,6 +31,7 @@ use HTTP::Request;
 local %shouldPlot;
 $soastaUrl="";
 
+
 print "\n\n***BEGIN  parseSOASTAResultsSummary.pl\n\n";
 print ("***STEP 1. Parse the command line arguments to get the thresholds for each value\n");
 #Step 1: Parse the command line arguments to get the thresholds for each of the values.
@@ -172,6 +173,30 @@ else
 "	);
 	
 }
+
+##
+## Pull down the package for scommand and decompress tools
+##
+print("Pulling down sCommand package from instance $soastaUrl\n") ;
+
+my $ua = LWP::UserAgent->new ;
+$ua->mirror($soastaUrl . '/downloads/scommand/scommand.zip', 'scommand.zip');
+
+if ( $^O == 'darwin' )
+{
+    ## MAC ##
+    print("Detected MAC | Linix based operating system\n") ;
+    system("unzip -o scommand.zip") ;
+    
+    ## todo: need to make sure this worked ##
+}
+else
+{
+    print "error: could not decompress tools for OS = " . $^O . "\n" ;
+    exit ( 1 ) ;
+}
+
+
 
 #STEP 2: Run the loadtest composition
 $runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=$username password=$password url=$soastaUrl wait=yes format=junitxml file=1-SOASTA_RESULTS_ID.xml $scommandoptions";
