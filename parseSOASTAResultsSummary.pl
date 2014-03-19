@@ -208,9 +208,11 @@ print "\n*** Step 2: Playing the composition by passing the following arguments 
 ## ~RT - If we fail for whatever reason the system picks up the old result.  so adding a check here to catch it. 
 ##
 system($runCompString);
-if ( $? ne 0 )
+my $rc = $? << 8 ;
+
+if ( $rc ne 0 )
 {
-    print( "ERROR: could not execute $runCompString successfully.   errorCode = $? - $!\n" ) ;
+    print( "ERROR: could not execute $runCompString successfully.   errorCode = $rc - $!\n" ) ;
     exit ( 1 ) ;
 }
 
