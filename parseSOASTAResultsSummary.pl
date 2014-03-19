@@ -187,31 +187,16 @@ if ( $^O == 'darwin' )
     ## MAC ##
     print("Detected MAC | Linix based operating system\n") ;
     system("unzip -o scommand.zip") ;
-    
-    print("dumping workspace\n") ;
-    system("ls -al") ;
-
-    print("dumping scommand bin folder to check permissions\n") ;
-    system("ls -al ./scommand/bin") ;
-
+    system("chmod +x ./scommand/bin/scommand") ;
     ##
-    ## Getting permission denied on execution.
+    ## TODO: Need to make sure this stuff was successful.
     ##
-    print("might have to chmod the file but not sure yet\n") ;
-
-    ##
-    ## Looks like when we decompress things we have to chmod the scommand file
-    ## 
-
-    ## todo: need to make sure this worked ##
 }
 else
 {
     print "error: could not decompress tools for OS = " . $^O . "\n" ;
     exit ( 1 ) ;
 }
-sleep 5 ;
-
 
 
 #STEP 2: Run the loadtest composition
@@ -220,10 +205,15 @@ $runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=
 print "\n*** Step 2: Playing the composition by passing the following arguments to SCOMMAND:\n\t$runCompString\n";
     
 ##
-## TODO: If we fail for whatever reason the system picks up the old result.   
+## ~RT - If we fail for whatever reason the system picks up the old result.  so adding a check here to catch it. 
 ##
 system($runCompString);
-print("error level = $?\n") ;
+if ( $? ne 0 )
+{
+    print( "ERROR: could not execute $runCompString successfully.   errorCode = $? - $!\n" ) ;
+    exit ( 1 ) ;
+}
+
 
 
 
