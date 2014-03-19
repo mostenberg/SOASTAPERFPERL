@@ -199,6 +199,10 @@ if ( $^O == 'darwin' )
     ##
     print("might have to chmod the file but not sure yet\n") ;
 
+    ##
+    ## Looks like when we decompress things we have to chmod the scommand file
+    ## 
+
     ## todo: need to make sure this worked ##
 }
 else
@@ -214,7 +218,14 @@ sleep 5 ;
 $runCompString = "./scommand/bin/scommand cmd=play name=\"/$compName\" username=$username password=$password url=$soastaUrl wait=yes format=junitxml file=1-SOASTA_RESULTS_ID.xml $scommandoptions";
 
 print "\n*** Step 2: Playing the composition by passing the following arguments to SCOMMAND:\n\t$runCompString\n";
+    
+##
+## TODO: If we fail for whatever reason the system picks up the old result.   
+##
 system($runCompString);
+print("error level = $?\n") ;
+
+
 
 #Step 3: Get the results ID out of the file 1-SOASTA_RESULTS_ID.xml . We will pass this into comp
 print ("\n*** Step 3: Parse file 1-SOASTA_RESULTS_ID.xml to get performance ResultsID \n");
