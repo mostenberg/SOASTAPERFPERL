@@ -188,7 +188,17 @@ if ( $^O == 'darwin' )
     print("Detected MAC | Linix based operating system\n") ;
     system("unzip -o scommand.zip") ;
     
+    print("dumping workspace\n") ;
     system("ls -al") ;
+
+    print("dumping scommand bin folder to check permissions\n") ;
+    system("ls -al ./scommand/bin") ;
+
+    ##
+    ## Getting permission denied on execution.
+    ##
+    print("might have to chmod the file but not sure yet\n") ;
+
     ## todo: need to make sure this worked ##
 }
 else
@@ -196,7 +206,8 @@ else
     print "error: could not decompress tools for OS = " . $^O . "\n" ;
     exit ( 1 ) ;
 }
-sleep 3 ;
+sleep 5 ;
+
 
 
 #STEP 2: Run the loadtest composition
